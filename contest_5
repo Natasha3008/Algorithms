@@ -1,0 +1,171 @@
+//contest 5
+//1st task
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class Tree{
+    vector<int> a;
+    void up(int i){
+        if (i != 0 && a[i]>a[(i-1)/2]){
+            swap(a[i], a[(i-1)/2]);
+            up((i-1)/2);
+        }
+    }
+    void down(int i){
+        if (2*i+1<a.size()){
+            int ind=2*i+1;
+            if (ind+1<a.size() && a[ind]<a[ind+1])
+                ind++;
+            if (a[i]<a[ind]){
+                swap(a[i], a[ind]);
+                down(ind);
+            }
+        }
+    }
+    public:
+    void Insert (int x){
+        a.push_back(x);
+        up(a.size()-1);
+    }
+    int Extract(){
+        int max =a[0];
+        a[0]=a[a.size()-1];
+        a.pop_back();
+        down(0);
+        return max;
+    }
+};
+int main(){
+    int n;
+    Tree A;
+    cin>>n;
+    string operation;
+    for (int i=0; i<n; i++){
+        cin >> operation;
+        if (operation=="Insert"){
+            int m;
+            cin>>m;
+            A.Insert(m);
+            }
+        else{
+            cout<<A.Extract()<<endl;
+        }
+    }
+    
+}
+
+//2nd task
+#include <iostream>
+using namespace std;
+typedef struct process{
+    int name;
+    long long time;
+}process;
+void down(process *a, int size, int i){
+        if (2*i+1<size){
+            int ind=2*i+1;
+            if (ind+1<size && (a[ind].time >a[ind+1].time || (a[ind+1].time == a[ind].time&& a[ind+1].name < a[ind].name)))
+                ind++;
+            if (a[i].time > a[ind].time || (a[i].time == a[ind].time && a[i].name > a[ind].name)){
+                swap(a[i].name, a[ind].name);
+                swap(a[i].time, a[ind].time);
+                down(a, size, ind);
+            }
+        }
+    }
+int main(){
+    int n;    //считываем количество процессоров 
+    int m;    //количество задач
+    cin>>n;
+    cin>>m;
+    int *arr=new int[m];   
+    for (int i=0; i<m; i++){
+        cin>>arr[i];
+    }
+
+    process *P=new process[n];  //создаем массив, представляющий из себя массив структур
+    for (int i=0; i<n; i++){  //инициализируем каждый процессор
+        P[i].name=i;
+        P[i].time=0;
+    }
+    for (int i=0; i<m; i++){   //начало цикла обработки задач
+        cout<<P[0].name<<" "<< P[0].time<<endl;
+        P[0].time += arr[i];
+        down(P, n, 0);
+    }
+    return 0;
+}
+
+//3rd task
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+typedef struct A{
+    int first;
+    int second;
+} A;
+
+A* replacement;
+int replacement_size = 0;
+int replacement_power = 0;
+
+
+void replace(int i, int j) {  //функция для определения памяти(не выходит ли за границы)
+    if (replacement_size >= replacement_power) {
+        if (replacement_power == 0) {
+            replacement_power = 1;
+        }
+        else {
+            replacement_power*=2;
+        }
+    replacement = (A*)realloc(replacement, replacement_power * sizeof(A));
+    }
+    replacement[replacement_size].first = i;
+    replacement[replacement_size].second = j;
+    replacement_size++;
+}
+
+
+void down(int* arr, int n, int i) {   //функция, просеивающая рекурсивно вниз
+    int min=i;
+    int r=2*i+2;
+    int l=2*i+1;
+    if (n>r && arr[min]>arr[r]){
+        min=r;
+    }
+    if (n>l && arr[min]>arr[l]){
+        min=l;
+    }
+
+    if (i!=min) {
+        replace(i, min);
+        swap(arr[i], arr[min]);
+        down(arr, n, min);
+    }
+}
+
+void heap(int* arr, int n) {   //функция для построения кучи
+    for (int i=n/2 -1; i>=0; --i) {    //начиная с последнего родительского узла просеивание вниз
+        down(arr, n, i);
+    }
+}
+
+int main() {
+    int n;              //размер массива
+    cin>>n;
+    int* arr = (int*)malloc(n*sizeof(int)); //создание массива
+        for (int i=0; i<n; ++i) {
+            cin>>arr[i];
+        }
+    heap(arr, n);     //построение кучи
+    cout<<replacement_size;
+    for (int i=0; i<replacement_size; ++i) {
+        cout<<replacement[i].first<<" "<<replacement[i].second<<endl;
+    }
+
+    free(arr);
+    free(replacement);
+    return 0;
+}
