@@ -1,0 +1,249 @@
+//contest 3
+//1st task
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+int fastpower(int a, int b, int n) {        //функция для быстрого возведения в степень
+    int res = 1;
+    if (b==1)
+        return a;
+    if (b==0)
+        return 1;
+    else{
+        int c;
+        c=fastpower(a, b/2, n);
+        if (b%2==0){
+            res=(c*c) % n;
+        }
+        //printf("!!!%d!!! ", res);
+        if (b%2==1){
+            res=((a % n) *((c*c) % n)) % n;
+        }
+        // printf("!%d! ", b);
+        //printf("%d ", b);
+        return res;
+        
+    }
+    
+}
+//first test a^(n-1)-1=0
+
+//x=[1, a-1]
+// x is a; a is n
+// x ^(a-1) mod a
+int ferma(int a, int* counter1,int *counter2) { 
+    for (int x=1; x<=a-1; x++){              //функция выполняет итерацию теста Ферма
+        if (fastpower(x,a-1, a) == 1) {
+            (*counter1)++;
+            //printf("gfvhgfghvf");
+            //return 1;                      //1-если а может быть простым
+        }
+        else{
+            (*counter2)++;
+        }
+    }
+    return 0;                               
+}
+
+int MRtest(int a, int* counter3, int *counter4, int* counter5){
+    int d=0;
+    int s=0;
+    int a1=a-1;
+    while (a1%2==0){
+        a1=a1/2;
+        s++;
+    }
+    d=a1;
+    for (int x=1; x<=a-1; x++){
+        if (fastpower(x, d, a)==1){
+            (*counter4)++;}
+        else{
+            int check=1;
+            for (int r=0; r<s; r++){
+                if(fastpower(x, (pow(2,r)*d), a)==a-1){
+                    (*counter5)++;
+                    check = 0;
+                    break;
+                }
+            }
+            if (check){
+                (*counter3)++;
+            }
+        }
+    }
+    
+}
+
+int main() {
+    int a;
+    scanf("%d", &a);
+
+    int counter1=0;
+    int counter2=0;
+    int counter3=0;
+    int counter4=0;
+    int counter5=0;
+    printf("Miller-Rabin test: ");
+    MRtest(a, &counter3, &counter4, &counter5);
+    if (counter3==0){
+        printf("True ");
+    }
+    else{
+        printf("False ");
+    }
+    printf("%d %d %d", counter3, counter4, counter5);
+    printf("\nFermat test: ");
+    ferma(a, &counter1, &counter2);
+    if (counter2==0) {
+        printf("True ");
+    } else {
+        printf("False ");
+    }
+    printf("%d ", counter2);
+    printf("%d ", counter1);
+    return 0;
+}
+
+//2nd task
+#include <stdio.h>
+#include <stdlib.h>
+
+int sieve(int start, int finish){
+    int *arr;
+    arr = (int*)calloc((finish+1), sizeof(int)); //создание массива для определения простоты чисел
+    int *tmp;
+    tmp = (int*)calloc((finish+1), sizeof(int));
+    int a=0;
+    for (int i=0; i<(finish+1); i++){
+        arr[i]=1;                   //пусть все числа простые
+    }
+    for (int j=2; j*j<(finish+1); j++){
+        ////j-1
+        if (arr[j]==1){
+            int index=0;
+            for (int k = j * j; k < (finish+1); k=k+j) {   //зачеркиваем все составные числа, кратные j
+            
+                if (k>=start&&arr[k]!=0){
+                 
+                tmp[index++]=k;
+                //printf("%d ",k);}     //выводим зачеркнутые числа 
+                }
+                arr[k] = 0;
+            }
+            a++;
+            if (index!=0){
+                printf("\nIteration : %d \n", a);
+                for (int i=0; i<index; i++){
+                    printf("%d ", tmp[i]);
+                }
+                //printf("\n");
+            }
+        }
+    }
+    //printf("\n");
+    printf("\nPrimes :\n");
+    int counter=0;      //счетчик для определения существования простых чисел в заданном диапазоне
+    for (int i=start; i<(finish+1); i++){     //выводим простые числа из заданного диапазона
+        if (arr[i]!=0){
+            counter++;
+            printf("%d ", i);
+        }
+    }
+    if (counter==0)
+    printf("No primes");
+    free(arr);
+    return 0;
+}
+
+int main(){
+    int start;
+    int finish;
+    //printf("Enter s and f: ");
+    scanf("%d %d", &start, &finish);
+    printf("Start and finish: %d %d", start, finish);
+    int lengh=0;
+    lengh=finish-start;                         //находим длину последовательности-1
+    
+    sieve(start, finish);
+    
+    return 0;
+}
+
+//3rd task
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+__int128_t fastpower(__int128_t a, int b, int n) {        //функция для быстрого возведения в степень
+    __int128_t res = 1;
+    if (b==1)
+        return a;
+    if (b==0)
+        return 1;
+    else{
+        int c;
+        c=fastpower(a, b/2, n);
+        if (b%2==0){
+            res=(c*c) % n;
+        }
+        //printf("!!!%d!!! ", res);
+        if (b%2==1){
+            res=((a % n) *((c*c) % n)) % n;
+        }
+        // printf("!%d! ", b);
+        //printf("%d ", b);
+        return res;
+        
+    }
+    
+}
+
+int gcd(long long a, long long b){
+      if (b==0)
+      return a;
+      else{
+        return gcd(b, a%b);
+      }
+}
+
+int main(){
+    long long p;
+    long long q;
+    long long e;
+    cin >> p >> q >> e;
+    int str[6] = {0};
+    char c;
+    int ind = 0;
+    while(cin >> c){
+        str[ind] = c;
+        ind++;
+    }
+    // for (int i = 0; str[i] != 0; i++)
+    //     cout << str[i];
+    long long n;
+    n=p*q;
+    long long fi;
+    fi=(p-1)*(q-1);
+    while(e<fi){
+        if (gcd(e, fi)==1){
+            break;
+        }
+        e++;
+    }
+    long long d = (fi + 1) / e;
+    for (int m=1; (m*fi+1)%e!=0; m++){
+        d=(m*fi+1)/e;
+    }
+    cout<<"Private: " << d <<" "<< n<<endl;
+    cout<<"Public: " << e <<" "<< n<<endl;
+
+    cout<<"Initial bytes: ";
+    for (int i=0; str[i]!=0; i++){
+        cout<<str[i]<<" ";
+    }
+    cout<<"\nEncrypted bytes: ";
+
+    return 0;
+
+}
