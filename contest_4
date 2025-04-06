@@ -1,0 +1,181 @@
+//contest 4
+//1st task
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#define N 1000
+
+int stack1[N];   //создаем стек для хранения в нем чисел
+int t=-1;
+
+int digit(char* example, int i){   //функция, которая выводит 1, если символ является числом, и 0, если знаком (соответсвенно условию задачи)
+    if (example[i]=='0' || example[i]=='1' || example[i]=='2' || example[i]=='3' || example[i]=='4' || example[i]=='5' || example[i]=='6' || example[i]=='7' || example[i]=='8' || example[i]=='9'){
+        return 1;
+    }
+    else
+        return 0;
+}
+
+int add(int value) {    //функция, которая добавляет числа в стек
+    if (t>N) {
+        return 1;
+    }
+    stack1[++t] = value;
+}
+
+int delete() {             //функция, которая удаляет числа из стека
+    if (t<0) {
+        return 0;
+    }
+    else{
+    return stack1[t--];}
+}
+
+int evaluation(int* arr, char* postform){   //функция для вычисления значения выражения
+    int i=0;
+    int j=0;
+    for (int i = 0; postform[i]!='\0'; i++){
+        int ab;
+        if (postform[i] == '0') {       // если цифра
+            add(arr[j++]);    // добавляем ее в стек
+            //printf("khhkbv");
+
+        } 
+        else {                // если оператор, необходимо получить два последних числа из стека и выполнить соответсвующую операцию 
+            int b=delete();
+            int a=delete();
+            if (postform[i]=='+'){
+                ab = a+b;
+                add(a+b);
+            }
+            if (postform[i]=='-'){
+                add(a-b);
+                ab = a-b;
+            }
+            if (postform[i]=='*'){
+                add(a*b);
+                ab = a*b;
+            }
+            if (postform[i]=='/'){
+                add(a/b);
+                ab = a/b;
+            }
+            //  printf("ba : %d %d ;" , b, a);
+        }
+        // printf("%d ", ab);
+    }
+    return delete();
+}
+
+int priority(char operator) {   //функция, которая указывает на приоритет оператора
+    if (operator=='+' || operator=='-') {
+        return 1;
+    } else if (operator=='*' || operator=='/') {
+        return 2;
+    }
+    return 0;
+}
+
+
+int RPN(char* example, char* postform, char* stack, int* arr) { //функция, которая преобразует символы в обратную польскую запись
+    int temp=-1;   //заводим временную переменную для дальнейшей работой со скобками
+    int i=0;         //объявляем переменные для дальнейшего использования их в циклах
+    int j=0;
+    int flag=1;
+    for (i, j; example[i]!='\0'; i++) {             //запускаем цикл для перебора всей строки  
+        if (digit(example, i)&&flag==1){                  //если символ является цифрой,
+            postform[j]='0';                        //начинаем заполнять postform
+            j++;
+            flag=0;
+        } 
+        if ((digit(example, i)) && flag==0){
+            continue;
+        }
+        if (!(digit(example, i))){
+            flag=1;
+         if (example[i]=='(') {       //если встретили открывающуюся скобку, 
+            temp++;                           //увеличиваем временную переменную 
+            stack[temp]=example[i];         //записываем скобку в переменную stack
+        } else if (example[i]==')') {       //если встретили закрывающуюся скобку, 
+            for (j, temp; temp!=-1&&stack[temp]!='('; j++, temp--){
+                postform[j]=stack[temp];
+            }
+            if (temp!=-1) {
+                temp--;                        //очищаем временную переменную
+            }
+        
+        } else {
+            for(j, temp; temp!=-1&&priority(stack[temp])>=priority(example[i]); j++, temp--){
+                postform[j]=stack[temp];  //если приритет операции, находящейся в стеке по ключу temp>=
+            }                               //приоритету текущей операции в примере, то мы в стеке оставляем наименее приоритетную операцию, а операцию с высшим приоритетом записываем в postform 
+            temp++;
+            stack[temp]=example[i];
+        }
+        }
+    }
+    for (j, temp; temp!=-1; j++, temp--){  //записываем операции, оставшиеся в стеке ко всему выражению
+        postform[j]=stack[temp];
+    }
+    postform[j]='\0';
+}
+
+int main() {
+    char example[N];     //переменная для ввода строк
+    for(int i=0; i<N; i++){
+        example[i]='\0';   
+    }
+    char postform[N]={0};  //создаем две переменные для считывания строки и для записи в обратную польскую запись(RPN)
+    char stack[N];
+    scanf("%[^\n]%*c", example);
+    // gets(example);
+    printf("Expression:\n%s", example);
+
+    int arr[N];                     //определяем числа (т.е, например, чтобы читалось как 34, а не 3 4)
+    for (int i = 0; i < N; i++){
+        arr[i] = -100000;
+    }
+    int k=0;
+    int sign = 1;
+    //printf("\n%d\n", strlen(example));
+    for (int i = 0; i < strlen(example); i++){  
+        if (digit(example, i)){
+            if (sign){
+                arr[k] = 0;
+            }
+            int a=arr[k];
+            arr[k]=a*10 + ((int) example[i]-'0');
+            // printf("%d ", (int) example[i]-'0'); 
+            sign = 0;
+        }
+        else{
+            if (arr[k] != -100000){
+                k++;
+                sign = 1;
+            }
+        }
+    }
+    
+//printf("%d ", strlen(postform));
+
+    RPN(example, postform, stack, arr);
+    //printf("\nReverse Polish Notation: \n%s\n", postform);
+    printf("\nReverse Polish Notation:\n");
+    int i=0;
+    int j=0;
+  
+    while(postform[i]!='\0'){       //вывод обратной польской записи (RPN)
+        if (postform[i]=='0'){
+            printf("%d ", arr[j]);
+            j++;
+            i++;
+        }
+        else{
+        printf("%c ", postform[i]);
+        i++;
+        }
+    }
+    printf("\nResult:\n");
+    int res = evaluation(arr, postform);
+    printf("%d ", res);
+    return 0;
+}
