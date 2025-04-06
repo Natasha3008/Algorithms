@@ -1,0 +1,180 @@
+//contest 6
+//1st task
+#include <iostream>
+#include <vector>
+#include <cmath>
+using namespace std;
+
+int WasItVisited (int s, int x, int y, vector<vector<int>> matrix){  //функция, проверяющая, была ли клетка посещена и входит ли в заданный диапазон 
+    if (matrix[x][y]==-1 && (x>=0 && x<=s-1) && (y>=0 && y<=s-1)){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+void printNums(int newX, int newY, int x){
+    cout<<((newY-1)*x+newX)-1<<" ";         //вывод номера клетки, куда может ходить фигура
+}
+
+int findWay(int s, int x, int y, vector<vector<int>> matrix, int arrx[8], int arry[8], int moves){
+    if (moves==pow(s,2)){
+        return 1;
+    }
+    //??????????cout<<s;
+    for (int i=0; i<sizeof(arrx); i++){
+        int newX;
+        newX=x+arrx[i];
+        int newY;
+        newY=y+arry[i];
+        // if ((newX>=0 && newX<=s-1) && (newY>=0 && newY<=s-1)){
+        //     printNums(newX, newY, x);
+        // }
+        if (WasItVisited(s, newX, newY, matrix)){
+            matrix[newX][newY]=moves;
+            if (findWay(s, newX, newY, matrix, arrx, arry, moves+1)){
+                return 1;
+            }
+            else{
+                matrix[newX][newY]=-1;
+            }
+        }
+    }
+    return -1;
+}
+
+void printGraph (int x, int y, vector<vector<int>> matrix, int s, int arrx[8], int arry[8]){
+    for (int i=0; i<s; i++){
+        for (int j=0; j<s; j++){
+            int a=i+1, b=j+2;
+            if (a>0 && a<=s-1 && b>0 && b<=s-1){
+                
+            }
+        }
+    }
+}
+
+int main(){
+    int s, x, y;
+    cin>>s>>x>>y;
+    int arrx[8]={1, -1, -2, -2, -1, 1, 2, 2};
+    int arry[8]={2, 2, 1, -1, -2, -2, -1, 1};
+    vector<vector<int>> matrix(s, vector<int>(s, -1));
+    matrix[x][y]=0;
+    cout<<"Graph:"<<endl;
+    if (!findWay(s, x, y, matrix, arrx, arry, 1)){
+        cout<<"No way";
+    }
+    return 0;
+}
+
+
+//2nd task
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+int m, n;
+int arrx[4]={-1, 0, 0, 1};  //массив для движения по х
+int arry[4]={0, -1, 1, 0};  //по у
+
+void bfs(vector<vector<char>>& maze, int adjacencymatrix[50][50], int start, int finish) {
+    vector<bool> wasItVisited(m*n, false);   //массив для отметки посещенности
+    wasItVisited[start] = true;  //отмечаем стартовую вершину посещенной
+    vector<int> parent(m*n, -1);             //массив предыдущих вершин
+    vector<int> path;                          //массив, чтобы запомнить путь
+
+    queue<int> q;   //создаем очередь и добавляем в нее стартовую вершину
+    q.push(start);
+    while (q.empty()==0) {     //пока очередь не пуста
+        int current=q.front();   //получаем первую вершину из очереди
+        q.pop();               //удаляем её
+        int i=0; 
+        while (i<m*n) {     //идем в цикле по всем вершинам
+            if (wasItVisited[i]==0) {  //если вершина не посещена
+                if (adjacencymatrix[current][i]==1){ //если существует ребро 
+                    wasItVisited[i]=true;   //помечается как посещенная
+                    q.push(i);                      //вершина добавляется в очередь
+                    parent[i]=current;      //запоминается как предыдущая
+                }
+            }
+            i++;      //обновляем счетчик
+        }
+    }
+    while (finish!=-1) {     //восстанавливаем путь
+        path.push_back(finish);
+        finish=parent[finish];
+    }
+    for (int i=path.size()-1, j=0; i>=path.size()/2; --i, ++j) {  //получаем правильный порядок пути
+        swap(path[i], path[j]);
+    }
+    for (int i=0; i<path.size(); i++) {  //вывод пути
+        cout << path[i] << " ";
+    }
+    
+}
+
+int main(){
+    cin>>m>>n;
+    int adjacencymatrix[50][50]={0};
+    vector<vector<char>> maze (m, vector<char>(n, -1));  
+    for (int i=0; i<m; i++){            //вводим лабиринт
+        for (int j=0; j<n; j++){
+            cin>>maze[i][j];
+        }
+    }
+    cout<<"Initial labyrinth:"<<endl;
+    for (int i=0; i<m; i++){           //вывод лабиринта
+        for (int j=0; j<n; j++){
+            cout<<maze[i][j];
+        }
+        cout<<endl;
+    }
+    cout<<"Graph:"<<endl;
+    for (int i=0; i<m; i++){  //заполняем матрицу смежности
+        for (int j=0; j<n; j++){
+            int num = n*i+j;    //нумеруем вершины
+            for (int k=0; k<4; k++){
+                int newX=i+arrx[k];  //новая координата х
+                int newY=j+arry[k];  //новая координата у
+                int num2 = newX*n+newY;    //новая вершина
+                if ((newX>=0 && newX<=m-1) && (newY>=0 && newY<=n-1) && (maze[newX][newY]!='#') && (maze[i][j]!='#')){  //условие для существавания ребра между вершинами
+                    adjacencymatrix[num][num2]=1;
+                }
+                
+            }
+        }
+    }
+
+    int counter=0;     //вывод графа
+    for (int i=0; i<m*n; i++){
+        cout<<i<<" - ";
+        for (int j=0; j<m*n; j++){
+            if (adjacencymatrix[i][j]==1){
+                counter++;
+                cout<<j<<" ";
+            }
+        }
+        if (counter==0){
+                cout<<"None";
+            }
+        cout<<endl;
+        counter=0;
+    }
+    cout<<"BFS result is:"<<endl;
+
+    int start, end;
+    for (int i=0; i<m; i++){
+        for (int j=0; j<n; j++){
+            if (maze[i][j]=='S'){   //находим индекс старта
+                start=i*n+j;
+            }
+            if (maze[i][j]=='F'){   //находим индекс финиша
+                end=i*n+j;
+            }
+        }
+    }
+    bfs(maze, adjacencymatrix, start, end);  //запускаем обход в ширину
+    return 0;
+}
