@@ -1,0 +1,81 @@
+//contest 8
+//1st task
+#include <iostream>
+#include <vector>
+int min(int a, int b, int c){
+    int min = 0;
+    if (a < b && a < c) min = a;
+    if (b < a && b < c) min = b;
+    if (c < b && c < a) min = c;
+    return min;
+}
+
+int max(int a, int b, int c){
+    int max = 0;
+    if (a > b && a > c) max = a;
+    if (b > a && b > c) max = b;
+    if (c > b && c > a) max = c;
+    return max;
+}
+void findClosestTriple(const std::vector<int>& A, const std::vector<int>& B, const std::vector<int>& C) {
+    int minDiff = 10e9;
+    int a, b, c;
+
+    int pointerA = 0, pointerB = 0, pointerC = 0;
+    while (pointerA < A.size() && pointerB < B.size() && pointerC < C.size()) {
+        // int maxVal = A[i];
+        // if (B[j] > maxVal) maxVal = B[j];
+        // if (C[k] > maxVal) maxVal = C[k];
+        int maxVal = max(A[pointerA], B[pointerB], C[pointerC]);
+
+        // int minVal = A[i];
+        // if (B[j] < minVal) minVal = B[j];
+        // if (C[k] < minVal) minVal = C[k];
+        int minVal = min(A[pointerA], B[pointerB], C[pointerC]);
+
+        int diff = maxVal - minVal;
+
+        if (diff < minDiff) {
+            minDiff = diff;
+            a = A[pointerA];
+            b = B[pointerB];
+            c = C[pointerC];
+        }
+
+        if (minVal == A[pointerA]) {
+            pointerA++;
+        } else if (minVal == B[pointerB]) {
+            pointerB++;
+        } else {
+            pointerC++;
+        }
+    }
+
+    std::cout << "Numbers = " << a << " " << b << " " << c << std::endl;
+    std::cout << "Result = " << minDiff << std::endl;
+}
+
+int main() {
+    int n1, n2, n3;
+    std::cin >> n1;
+    std::vector<int> A(n1);
+    for (int i = 0; i < n1; i++) {
+        std::cin >> A[i];
+    }
+
+    std::cin >> n2;
+    std::vector<int> B(n2);
+    for (int i = 0; i < n2; i++) {
+        std::cin >> B[i];
+    }
+
+    std::cin >> n3;
+    std::vector<int> C(n3);
+    for (int i = 0; i < n3; i++) {
+        std::cin >> C[i];
+    }
+
+    findClosestTriple(A, B, C);
+
+    return 0;
+}
