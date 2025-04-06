@@ -1,0 +1,118 @@
+//contest 9
+//1st task
+#include <iostream>
+#include <string>
+#include <stdlib.h>
+#include <vector>
+
+using namespace std;
+
+void printFunction(int* array, int size);     //объявляем функции, которые будем использовать в кода далее
+vector<int> KMPalgo(string &Template, string &text, int *pi2, int d);
+// void printFunction(int *array){
+//     int *array;
+//     for (int h = 0; h < array.size())
+// }
+
+int main(){
+    string Template;
+    cin >> Template;
+    string text;
+    cin >> text;
+    int *pi1 = (int*)calloc(Template.size(), sizeof(int));  //массив для префикс-функции для шаблона
+    int j = 0;
+    int i = 1; 
+    //pi[0] = 0;
+    while(i < Template.size()){      //ищем максимальную длину префикс-суффикса для шаблона
+        while (j > 0){
+            if (Template[j] != Template[i]){
+                int tmp = j - 1;
+                j = pi1[tmp];
+            }
+            if (Template[j] == Template[i]){
+                break;
+            }
+        }
+        if (Template[j] == Template[i]){
+            j++;
+        }
+        pi1[i] = j;
+        i++;
+    }
+    std::cout << "Prefix template: ";
+    printFunction(pi1, Template.size());
+    std::cout << "\n";
+    std::cout << "Prefix function: ";
+    string New = Template + "$" + text;  //новая строка будет состоять из шаблона, символа, которого нет в тесте и самого текста
+    
+    int len = Template.size() + text.size() + 1;
+    int *pi2 = (int*)calloc(len, sizeof(int));    //массив для префикс-функции для нового текста
+    int k = 0;
+    int l = 1; 
+    //pi[0] = 0;
+    while(l < len){
+        while (k > 0){
+            if (New[k] != New[l]){
+                int ind = k - 1;
+                k = pi2[ind];
+            }
+            if (New[k] == New[l]){
+                break;
+            }
+        }
+        if (New[k] == New[l]){
+            k++;
+        }
+        pi2[l] = k;
+        l++;
+    }
+    //cout << "Prefix template: ";
+    printFunction(pi2, len);
+    std::cout << "\n";
+    std::cout << "Matches: ";
+    int d = 0;
+    std::vector<int> Matches = KMPalgo(Template, text, pi2, d); //запускаем алгорим Кнута-Морриса-Пратта
+    
+    return 0;
+}
+
+vector<int> KMPalgo(string &Template, string &text, int *pi2, int d){
+    std::vector<int> matches;
+    int b = 0;
+    while (b < text.size()){
+        int tmp = b - Template.size() + 1;   //позиция начала текущей подстроки
+        if (d == Template.size()) {   //если найдено полное вхождение, обновляем и добавляем в массив значение
+            if (d > 0)
+                d = pi2[d - 1];
+            matches.resize(matches.size() + 1); 
+            matches[matches.size() - 1] = tmp;  
+        }
+        while (d > 0) {        //проверяем совпадение и обновляем значение
+            if (d == 0) {
+                break;
+            }
+            if (Template[d] != text[b]) d = pi2[d - 1];
+            else break;
+
+        }
+        if (Template[d] == text[b]) {  //случай свопадение символов
+            d += 1;
+            if (d == Template.size()) {
+                if (d > 0)
+                    d = pi2[d - 1];
+                matches.resize(matches.size() + 1); 
+                matches[matches.size() - 1] = tmp; 
+            }
+        }
+        b++;
+    }
+    for (int h = 0; h < matches.size(); h++) {
+        std::cout << matches[h] << " ";
+    }
+    return matches; 
+}
+void printFunction(int* array, int size) {   //функция для вывода массива
+    for (int q = 0; q < size; q++) {
+        std::cout << array[q] << " ";
+    }
+}
