@@ -1,0 +1,147 @@
+//contest 7
+//1st task
+#include <iostream>
+#include <vector>
+#include <stack>
+
+class Node {        //класс для создания двоичного дерева поиска
+    public:
+        int key;    //ключ вершины
+        int left;   //левый ребенок
+        int right;  //правый ребенок
+};
+
+int preOrder(std::vector<Node> &tree, int k);  //объявление pre-order обхода
+int inOrder(std::vector<Node> &tree, int j);   //объявление in-order обхода
+int postOrder(std::vector<Node> &tree, int l); //объявление post-order обхода
+
+int main(){
+    int n;               //считываем размер
+    std::cin >> n; 
+    std::vector<Node> tree(n);   //создаем вектор для создания дерева
+    int i = 0;
+    while(i < n){        //цикл для считывания 
+        int key;         
+        int left;
+        int right;
+        std::cin >> key >> left >> right;  //считываем ключ, левого ребенка, правого ребенка
+        tree[i].key = key;     //записваем в класс 
+        tree[i].left = left;
+        tree[i].right = right;
+        i++;
+    }
+    //запускаем обходы:
+    int j = 0;
+    inOrder(tree, j);  
+    std:: cout << "\n";
+    int k = 0;
+    preOrder(tree, k);
+    std:: cout << "\n";
+    int l = 0;
+    postOrder(tree, l);
+    std:: cout << "\n";
+    return 0;
+}
+
+int preOrder(std::vector<Node> &tree, int k){
+    if (k >= 0){
+        std::cout << tree[k].key << " ";
+        preOrder(tree, tree[k].left);
+        preOrder(tree, tree[k].right);
+    }
+    else{ 
+        return 0;
+    }
+    return 0;
+}
+
+
+int inOrder(std::vector<Node> &tree, int j){
+    if (j >= 0){
+        // std::cout << tree[j].key << " ";
+        inOrder(tree, tree[j].left);
+        std::cout << tree[j].key << " ";
+        inOrder(tree, tree[j].right);
+    }
+    else{
+        return 0;
+    }
+    return 0;
+}
+
+int postOrder(std::vector<Node> &tree, int l){
+    if (l >= 0){
+        // std::cout << tree[j].key << " ";
+        postOrder(tree, tree[l].left);
+        // std::cout << tree[j].key << " ";
+        postOrder(tree, tree[l].right);
+        std::cout << tree[l].key << " ";
+    }
+    else{
+        return 0;
+    }
+    return 0;
+}
+
+//2nd task
+#include <iostream>
+#include <vector>
+
+class Node {        //класс для создания двоичного дерева поиска
+    public:
+        int key;    //ключ вершины
+        int left;   //левый ребенок
+        int right;  //правый ребенок
+};
+
+int inOrder(std::vector<Node> &tree, int j, std::vector<int> &check);   //in-order обход
+
+int main(){
+    int n;
+    std::cin >> n; 
+    if (n == 0){                     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!             PAY ATTENION
+        std:: cout << "CORRECT";     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        return 0;                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    }                                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    std::vector<Node> tree(n);
+    int i = 0;
+    while(i < n){               //цикл для заполнения дерева
+        int key;
+        int left;
+        int right;
+        std::cin >> key >> left >> right;  //считываем значения
+        tree[i].key = key;                 //записываем в класс
+        tree[i].left = left;
+        tree[i].right = right;
+        i++;
+    }
+    std::vector<int> check;  //массив для записи вершин после побхода
+    int j = 0;
+    inOrder(tree, j, check); //запускаем in-order обход (если все работает верно, то check будет отсортирован в порядке возрастания)
+    int counter = 0;         //счетчик для последующей проверки
+    for (int i = 0; i < n-1; ++i) {
+        if (check[i] < check[i+1]) {   //проверяем, меньше ли предыдущая вершина следующей
+            counter++;                 //если да, увеличиваем счетчик
+        }
+    }
+    if (counter==n-1){              //если каждая вершина больше предыдущей, значит, массив отсортирован, значит, все работает верно
+        std::cout << "CORRECT";
+    }
+    else{
+        std::cout << "INCORRECT";  //иначе порядок нарушен
+    }
+    return 0;
+}
+
+int inOrder(std::vector<Node> &tree, int j, std::vector<int> &check){ //in-order обход
+    if (j >= 0){
+        // std::cout << tree[j].key << " ";
+        inOrder(tree, tree[j].left, check);
+        check.push_back(tree[j].key);    //добавляем вершину в check
+        inOrder(tree, tree[j].right, check);
+    }
+    else{
+        return 0;
+    }
+    return 0;
+}
